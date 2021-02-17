@@ -6,12 +6,14 @@ import numpy
 import scipy
 import sys
 import random
+from elegant import preprocess_image
 
 def preprocess_image(timepoint, img_type='bf'):
-	lab_frame_image = freeimage.read(timepoint.image_path(img_type))
+	position_root = timepoint.position.path
+    image_corrected = preprocess_image.flatfield_correct(position_root, timepoint.name, img_type)
+    return image_corrected
 
-
-def measure_timepoint(timepoint, rand_tp, measures, longitudinal_warp=False, img_type='bf'):
+def measure_timepoint(timepoint, mask_generation, measurement_func, longitudinal_warp=False, img_type='bf'):
 	tp1 = timepoint
 	tp_idx = list(tp1.position.timepoints.keys()).index(tp1.name)
 	tp2 = list(tp1.position.timepoints.values())[tp_idx+1]
@@ -27,7 +29,41 @@ def measure_timepoint(timepoint, rand_tp, measures, longitudinal_warp=False, img
     lab_frame_image_t2 = preprocess_image(tp2)
     lab_frame_image_tr = preprocess_image(tpr)
 
+    center_tck_t1, width_tck_t1 = tp1.annotations['pose']
+    center_tck_t2, width_tck_t2 = tp2.annotations['pose']
+    center_tck_tr, width_tck_tr = tr.annotations['pose']
+
+    #generate the masks for each worm
+    measurements = []
+    if longitudinal_warp:
+        keypoints_t1 = annotations[worm_name][1][tp1]['keypoints']
+        keypoints_t2 = annotations[worm_name][1][tp2]['keypoints']
+        keypoints_tr = annotations[random_worm][1][random_time]['keypoints']
+
+        lab_frame_masks_t1, worm_frame_images_t1, worm_frame_masks_t1 = mask_generation(lab_frame_image_t1, center_tck_t1, width_tck_t1, keypoints_t1)
+        lab_frame_masks_t2, worm_frame_images_t2, worm_frame_masks_t2 = mask_generation(lab_frame_image_t2, center_tck_t2, width_tck_t2, keypoints_t2)
+        lab_frame_masks_tr, worm_frame_images_tr, worm_frame_masks_tr = mask_generation(lab_frame_image_tr, center_tck_tr, width_tck_tr, keypoints_tr)
+
+    else:
+        lab_frame_masks_t1, worm_frame_images_t1, worm_frame_masks_t1 = mask_generation(lab_frame_image_t1, center_tck_t1, width_tck_t1)
+        lab_frame_masks_t2, worm_frame_images_t2, worm_frame_masks_t2 = mask_generation(lab_frame_image_t2, center_tck_t2, width_tck_t2)
+        lab_frame_masks_tr, worm_frame_images_tr, worm_frame_masks_tr = mask_generation(lab_frame_image_tr, center_tck_tr, width_tck_tr)
     
+    for lab_frame_mask_t1, worm_frame_image_t1, worm_frame_mask_t1, lab_frame_mask_t2, lab_frame_mask_tr in zip(lab_frame_masks_t1, 
+            worm_frame_images_t1, worm_frame_masks_t1, lab_frame_masks_t2, lab_frame_masks_tr):
+        #evaluate the measurement of comparison between worm t and worm t+1 and lab_frame_t1 and worm_frame_t1
+        compare_value_tt1 = measurement_func(lab_frame_image_t1, lab_frame_mask_t1, lab_frame_image_t2, lab_frame_mask_t2)
+        #evaluate the measurement of comparison between unwarped worm t and its warped image
+        compare_value_tt = measurement_func(lab_frame_image_t1, lab_frame_mask_t1, worm_frame_image_t1, worm_frame_mask_t1)
+        #measurement of comparison between worm t and random worm
+        compare_value_ttr = measurement_func(lab_frame_image_t1, lab_frame_mask_t1, lab_frame_image_tr, lab_frame_mask_tr)
+        #lab_frame_image_t1[lab_frame_mask_t1] = 1
+
+        measurements.append({'consecutive timepoint measurements': compare_value_tt1, 
+            'warp to unwarped' : compare_value_tt, 
+            'worm vs random worm': (compare_value_ttr, (random_worm, random_time))})
+
+    return measurements  
 	
 
 def measure_position(position, mask_generation, measurement_func, longitudinal_warp=False):
