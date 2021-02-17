@@ -27,7 +27,7 @@ def measure_timepoint(timepoint, rand_tp, measures, longitudinal_warp=False, img
     lab_frame_image_t2 = preprocess_image(tp2)
     lab_frame_image_tr = preprocess_image(tpr)
 
-
+    
 	
 
 def measure_position(position, mask_generation, measurement_func, longitudinal_warp=False):
