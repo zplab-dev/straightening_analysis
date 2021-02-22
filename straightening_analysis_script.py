@@ -32,7 +32,7 @@ def run_straightening_analysis(os_type, save_dir):
         #exp_root2 = '/mnt/9karray/Mosley_Matt/20190408_lin-4_spe-9_20C_pos-1/'
         exp_root3 = '/Volumes/lugia_array/20190813_lin4gfp_spe9_control/20190813_lin4gfp_spe9_control/'
         #exp_root3 = '/mnt/scopearray/Mosley_Matt/glp-1/20190813_lin4gfp_spe9_control'
-    elif os == 'Linux':
+    elif os_type == 'Linux':
         exp_root1 = '/mnt/lugia_array/20170919_lin-04_GFP_spe-9/'
         exp_root2 = '/mnt/lugia_array/20190408_lin-4_spe-9_20C_pos-1/'
         #exp_root2 = '/mnt/9karray/Mosley_Matt/20190408_lin-4_spe-9_20C_pos-1/'
