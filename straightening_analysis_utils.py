@@ -37,7 +37,6 @@ def measure_timepoint(timepoint, mask_generation, measurement_funcs, measurement
     center_tck_tr, width_tck_tr = tpr.annotations['pose']
 
     #generate the masks for each worm
-    measurements = {}
     if longitudinal_warp:
         keypoints_t1 = annotations[worm_name][1][tp1]['keypoints']
         keypoints_t2 = annotations[worm_name][1][tp2]['keypoints']
@@ -55,6 +54,7 @@ def measure_timepoint(timepoint, mask_generation, measurement_funcs, measurement
     #measure stuff!
     results = {}
     for measure_func, mname in zip(measurement_funcs, measurement_names):
+        print("Measuring "+mname)
         measurements = []
         for lab_frame_mask_t1, worm_frame_image_t1, worm_frame_mask_t1, lab_frame_mask_t2, lab_frame_mask_tr in zip(lab_frame_masks_t1, 
                 worm_frame_images_t1, worm_frame_masks_t1, lab_frame_masks_t2, lab_frame_masks_tr):
