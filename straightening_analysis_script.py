@@ -47,15 +47,15 @@ def run_straightening_analysis(os, save_dir):
     timepoint_list = timepoint_list[:5]
 
     #measure all the things
-    measures = [measurement_funcs.measure_integrated_gfp, measurement_funcs.measure_emd, measurement_funcs.measure_area]
+    measures = [measurement_funcs.measure_emd, measurement_funcs.measure_integrated_gfp, measurement_funcs.measure_area]
     masks = [mask_generation.generate_checkerboard_slice_masks]
     channels = ['bf', 'gfp']
-    mnames = ['pixel intensity', 'emd', 'area']
+    mnames = ['emd','pixel intensity', 'area']
 
     straightening_analysis_utils.measure_timepoint_list(timepoint_list, mask_generation.generate_checkerboard_slice_masks, measures, mnames)
 
-    measurement_list = straightening_analysis_utils.extract_slice_measurements(timepoint_list, mnames[:2])
-    area = straightening_analysis_utils.extract_slice_measurements(timepoint_list, mnames[2])
+    measurement_list = straightening_analysis_utils.extract_slice_measurements(timepoint_list, mnames[0])
+    area = straightening_analysis_utils.extract_slice_area_measurements(timepoint_list, mnames[1:])
     measurement_list.update(area) #update the measurement list to include everything we need
 
     summary_stats = straightening_analysis_utils.summary_stats(measurement_list)
