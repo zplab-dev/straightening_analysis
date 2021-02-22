@@ -23,9 +23,9 @@ def has_keypoints(timepoint):
     keypoints = timepoint.annotations.get('keypoints', None)
     return keypoints is not None and not None in keypoints.values() and not False in [x in keypoints.keys() for x in ['anterior bulb', 'posterior bulb', 'vulva', 'tail']]
 
-def run_straightening_analysis(os, save_dir):
-    print(os)
-    if os == 'Darwin':
+def run_straightening_analysis(os_type, save_dir):
+    print(os_type)
+    if os_type == 'Darwin':
         exp_root1 = '/Volumes/lugia_array/20170919_lin-04_GFP_spe-9/'
         exp_root2 = '/Volumes/lugia_array/20190408_lin-4_spe-9_20C_pos-1/'
         #exp_root2 = '/mnt/9karray/Mosley_Matt/20190408_lin-4_spe-9_20C_pos-1/'
@@ -44,7 +44,6 @@ def run_straightening_analysis(os, save_dir):
 
     #make at timepoint list and save out the timepoint paths
     timepoint_list = datamodel.Timepoints.from_experiments(*experiments)
-    timepoint_list = timepoint_list[:5]
 
     #measure all the things
     measures = [measurement_funcs.measure_emd, measurement_funcs.measure_integrated_gfp, measurement_funcs.measure_area]
@@ -54,7 +53,7 @@ def run_straightening_analysis(os, save_dir):
 
     straightening_analysis_utils.measure_timepoint_list(timepoint_list, mask_generation.generate_checkerboard_slice_masks, measures, mnames)
 
-    measurement_list = straightening_analysis_utils.extract_slice_measurements(timepoint_list, mnames[0])
+    measurement_list = straightening_analysis_utils.extract_slice_measurements(timepoint_list, [mnames[0]])
     area = straightening_analysis_utils.extract_slice_area_measurements(timepoint_list, mnames[1:])
     measurement_list.update(area) #update the measurement list to include everything we need
 
@@ -88,8 +87,8 @@ def run_straightening_analysis(os, save_dir):
 if __name__ == "__main__":
     try:
         save_dir = str(sys.argv[1])
-        os = platform.system()
-        run_straightening_analysis(os, save_dir)
+        os_type = platform.system()
+        run_straightening_analysis(os_type, save_dir)
     except IndexError:
         print("No save directory found")
         sys.exit(1)
