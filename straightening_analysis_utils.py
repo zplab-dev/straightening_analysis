@@ -150,16 +150,19 @@ def extract_slice_measurements(timepoint_list, measurement_names):
             consec_measurements = 0
             warp_measurements = 0
             rand_measurements = 0
+            
+            try:
+                for slice_m in timepoint.annotations[m]:
+                    consec_measurements += slice_m['consecutive timepoint measurements']
+                    warp_measurements += slice_m['warp to unwarped']
+                    rand_measurements += slice_m['worm vs random worm'][0]
 
-            for slice_m in timepoint.annotations[m]:
-                consec_measurements += slice_m['consecutive timepoint measurements']
-                warp_measurements += slice_m['warp to unwarped']
-                rand_measurements += slice_m['worm vs random worm'][0]
-
-            consec_tp.append(consec_measurements)
-            warp_v_unwarp.append(warp_measurements)
-            tp_v_rand.append(rand_measurements)
-            identifier.append((timepoint))
+                consec_tp.append(consec_measurements)
+                warp_v_unwarp.append(warp_measurements)
+                tp_v_rand.append(rand_measurements)
+                identifier.append((timepoint))
+            except KeyError:
+                continue
 
         #add to the end dictionary
         measurement_list['Identifier'] = identifier
@@ -192,21 +195,24 @@ def extract_slice_area_measurements(timepoint_list, measurement_names):
 
             rand_area = 0
             rand_total_area = 0
-            for slice_m in timepoint.annotations[m]:
-                c, ca = slice_m['consecutive timepoint measurements']
-                consec_area += c
-                consec_total_area += ca
-                w, wa = slice_m['warp to unwarped']
-                warp_area += w
-                warp_total_area += wa
-                r, ra = slice_m['worm vs random worm'][0]
-                rand_area += r
-                rand_total_area += ra
+            try:
+                for slice_m in timepoint.annotations[m]:
+                    c, ca = slice_m['consecutive timepoint measurements']
+                    consec_area += c
+                    consec_total_area += ca
+                    w, wa = slice_m['warp to unwarped']
+                    warp_area += w
+                    warp_total_area += wa
+                    r, ra = slice_m['worm vs random worm'][0]
+                    rand_area += r
+                    rand_total_area += ra
 
-            identifier.append(timepoint)
-            consec_tp.append(consec_area.astype(numpy.float64)/consec_total_area.astype(numpy.float64))
-            warp_v_unwarp.append(warp_area.astype(numpy.float64)/warp_total_area.astype(numpy.float64))
-            tp_v_rand.append(rand_area.astype(numpy.float64)/rand_total_area.astype(numpy.float64))
+                identifier.append(timepoint)
+                consec_tp.append(consec_area.astype(numpy.float64)/consec_total_area.astype(numpy.float64))
+                warp_v_unwarp.append(warp_area.astype(numpy.float64)/warp_total_area.astype(numpy.float64))
+                tp_v_rand.append(rand_area.astype(numpy.float64)/rand_total_area.astype(numpy.float64))
+            except KeyError:
+                continue
 
         #add to the end dictionary
         measurement_list['Identifier'] = identifier

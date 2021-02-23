@@ -71,7 +71,8 @@ def run_straightening_analysis(os_type, save_dir):
         experiment.filter(timepoint_filter=(has_pose, has_keypoints))
 
     #make at timepoint list and save out the timepoint paths
-    timepoint_list = datamodel.Timepoints.from_experiments(*experiments)
+    #timepoint_list = datamodel.Timepoints.from_experiments(*experiments)
+    timepoint_list = datamodel.Timepoints.from_experiments(experiments[2])
 
     #measure all the things
     measures = [measurement_funcs.measure_emd, measurement_funcs.measure_integrated_gfp, measurement_funcs.measure_area]
