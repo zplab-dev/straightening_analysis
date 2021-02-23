@@ -74,7 +74,6 @@ def run_straightening_analysis(os_type, save_dir):
             for k, v in val.items():
                 fn.write('\t\t {}:{}\n'.format(k,v))
         fn.write('\n')
-
     fn.close()
 
     #save the figures

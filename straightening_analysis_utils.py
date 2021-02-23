@@ -13,7 +13,10 @@ def preprocess_image(timepoint, img_type='bf'):
     return image_corrected
 
 def measure_timepoint_list(timepoint_list, mask_generation, measurement_funcs, measurement_names, longitudinal_warp=False, img_type='bf'):
-    for tp in timepoint_list:
+    total_tps = len(timepoint_list)
+    for i, tp in enumerate(timepoint_list):
+        if i//10 == 0:
+            print("Completed {}/{} timepoints".format(i, total_tps))
         measurements = measure_timepoint(tp, mask_generation, measurement_funcs, measurement_names, longitudinal_warp, img_type)
         tp.annotations.update(measurements)
 
