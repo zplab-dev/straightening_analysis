@@ -87,6 +87,7 @@ def run_straightening_analysis(os_type, save_dir):
 if __name__ == "__main__":
     try:
         save_dir = str(sys.argv[1])
+        print("Saving to: "+save_dir)
         os_type = platform.system()
         run_straightening_analysis(os_type, save_dir)
     except IndexError:
