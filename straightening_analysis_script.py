@@ -19,10 +19,37 @@ def has_pose(timepoint):
     # make sure pose is not None, and center/width tcks are both not None
     return pose is not None and pose[0] is not None and pose[1] is not None
     
-
 def has_keypoints(timepoint):
     keypoints = timepoint.annotations.get('keypoints', None)
     return keypoints is not None and not None in keypoints.values() and not False in [x in keypoints.keys() for x in ['anterior bulb', 'posterior bulb', 'vulva', 'tail']]
+
+def save_things(measurement_list, img_type, save_dir):
+    summary_stats = straightening_analysis_utils.summary_stats(measurement_list)
+    save_dir = os.path.join(save_dir, img_type)
+    #save out summary stats
+    if not os.path.exists(save_dir): os.makedirs(save_dir)
+    log_name = 'summary_stats'+str(img_type)+'.log'
+    log_filename = os.path.join(save_dir, log_name)
+
+    fn = open(log_filename, 'a')
+    time = datetime.now()
+    fn.write('---------------- Straightening Analysis run for {} images on {} ---------------------\n'.format(img_type, time))
+    for measurement, sum_stat in summary_stats.items():
+        fn.write('{}\n'.format(measurement))
+        for stat, val in sum_stat.items():
+            fn.write('\t {}\n'.format(stat))
+            for k, v in val.items():
+                fn.write('\t\t {}:{}\n'.format(k,v))
+        fn.write('\n')
+    fn.close()
+
+    #save the figures
+    for measurement, m_list in measurement_list.items():
+        title = 'Distribution of {} in {} straightening analyses'.format(measurement, img_type)
+        if measurement == 'emd':
+            straightening_analysis_utils.plot_violin(m_list, title, save_dir, measurement, ylabel='EMD Values')
+        else:
+            straightening_analysis_utils.plot_violin(m_list, title, save_dir, measurement)
 
 def run_straightening_analysis(os_type, save_dir):
     print(os_type)
@@ -52,45 +79,23 @@ def run_straightening_analysis(os_type, save_dir):
     channels = ['bf', 'gfp']
     mnames = ['emd','pixel intensity', 'area']
 
-    straightening_analysis_utils.measure_timepoint_list(timepoint_list, mask_generation.generate_checkerboard_slice_masks, measures, mnames)
+    for c in channels:
+        straightening_analysis_utils.measure_timepoint_list(timepoint_list, mask_generation.generate_checkerboard_slice_masks, measures, mnames, img_type=c)
 
-    measurement_list = straightening_analysis_utils.extract_slice_measurements(timepoint_list, [mnames[0]])
-    area = straightening_analysis_utils.extract_slice_area_measurements(timepoint_list, mnames[1:])
-    measurement_list.update(area) #update the measurement list to include everything we need
+        measurement_list = straightening_analysis_utils.extract_slice_measurements(timepoint_list, [mnames[0]])
+        area = straightening_analysis_utils.extract_slice_area_measurements(timepoint_list, mnames[1:])
+        measurement_list.update(area) #update the measurement list to include everything we need
 
-    summary_stats = straightening_analysis_utils.summary_stats(measurement_list)
-
-    #save out summary stats
-    if not os.path.exists(save_dir): os.makedirs(save_dir)
-    log_filename = os.path.join(save_dir, 'summary_stats.log')
-
-    fn = open(log_filename, 'a')
-    time = datetime.now()
-    fn.write('---------------- Straightening Analysis run on {} ---------------------\n'.format(time))
-    for measurement, sum_stat in summary_stats.items():
-        fn.write('{}\n'.format(measurement))
-        for stat, val in sum_stat.items():
-            fn.write('\t {}\n'.format(stat))
-            for k, v in val.items():
-                fn.write('\t\t {}:{}\n'.format(k,v))
-        fn.write('\n')
-    fn.close()
-
-    #save the figures
-    for measurement, m_list in measurement_list.items():
-        title = 'Distribution of {} in straightening analyses'.format(measurement)
-        if measurement == 'emd':
-            straightening_analysis_utils.plot_violin(m_list, title, save_dir, measurement, ylabel='EMD Values')
-        else:
-            straightening_analysis_utils.plot_violin(m_list, title, save_dir, measurement)
-
+        #save all the things!
+        save_things(measurement_list, c, save_dir)
+    
 if __name__ == "__main__":
-    try:
-        save_dir = str(sys.argv[1])
-        print("Saving to: "+save_dir)
-        os_type = platform.system()
-        run_straightening_analysis(os_type, save_dir)
-    except IndexError:
-        print("No save directory found")
-        sys.exit(1)
+   #try:
+    save_dir = str(sys.argv[1])
+    print("Saving to: "+save_dir)
+    os_type = platform.system()
+    run_straightening_analysis(os_type, save_dir)
+    """except IndexError:
+                    print("No save directory found")
+                    sys.exit(1)"""
     
