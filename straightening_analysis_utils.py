@@ -18,11 +18,18 @@ def measure_timepoint_list(timepoint_list, mask_generation, measurement_funcs, m
         if i%10 == 0:
             print("Completed {}/{} timepoints".format(i, total_tps))
         measurements = measure_timepoint(tp, mask_generation, measurement_funcs, measurement_names, longitudinal_warp, img_type)
-        tp.annotations.update(measurements)
+        try:
+            tp.annotations.update(measurements)
+        except TypeError:
+            continue
 
 def measure_timepoint(timepoint, mask_generation, measurement_funcs, measurement_names, longitudinal_warp=False, img_type='bf'):
     tp1 = timepoint
     tp_idx = list(tp1.position.timepoints.keys()).index(tp1.name)
+    #if the timepoint is the last one then return None
+    if tp_idx+1 == len(list(tp1.position.timepoints.keys())):
+        return
+
     tp2 = list(tp1.position.timepoints.values())[tp_idx+1]
     #get random worm
     random_position = random.choice(list(tp1.position.experiment.positions.keys()))
