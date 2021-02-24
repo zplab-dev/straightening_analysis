@@ -214,12 +214,12 @@ def extract_slice_area_measurements(timepoint_list, measurement_names):
             except KeyError:
                 continue
 
-        #add to the end dictionary
-        measurement_list['Identifier'] = identifier
-        measurement_list['consecutive timepoint measurements'] = consec_tp
-        measurement_list['warp to unwarped'] = warp_v_unwarp
-        measurement_list['worm vs random worm'] = tp_v_rand
-    extracted_list[m] = measurement_list
+            #add to the end dictionary
+            measurement_list['Identifier'] = identifier
+            measurement_list['consecutive timepoint measurements'] = consec_tp
+            measurement_list['warp to unwarped'] = warp_v_unwarp
+            measurement_list['worm vs random worm'] = tp_v_rand
+        extracted_list[m] = measurement_list
 
     return extracted_list
 
