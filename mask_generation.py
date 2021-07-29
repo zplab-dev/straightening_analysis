@@ -166,7 +166,7 @@ def generate_sliced_masks_fast(lab_frame_image, center_tck, width_tck):
     worm_frame_images, worm_frame_masks = [], []
 
     for start in numpy.arange(0,1,0.1):
-        end = start+0.2
+        end = start+0.1
         length = worm_frame_image.shape[0]
 
         x,y = numpy.indices(worm_frame_image.shape)
@@ -198,7 +198,7 @@ def generate_sliced_masks(lab_frame_image, center_tck, width_tck):
     #slice n dice (currently only have 5 regions)
     worm_frame_images, worm_frame_masks = [], []
     for start in numpy.arange(0,1,0.1):
-        end = start + 0.2
+        end = start + 0.1
         length = worm_frame_image.shape[0]
         mask_slice = numpy.zeros(worm_frame_mask.shape)
         mask_slice[int(length*start):int(length*end),] = 1 #make slices in the worm frame
