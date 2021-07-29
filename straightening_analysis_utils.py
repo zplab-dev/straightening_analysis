@@ -230,7 +230,7 @@ def summary_stats(measurement_list):
     for mname, m_list in measurement_list.items():
         stats = {}
         for key, measurements in m_list.items():
-            if key is 'Identifier':
+            if key == 'Identifier':
                 break
             sum_stats = {}
             sum_stats['mean'] = numpy.mean(measurements)
@@ -315,16 +315,20 @@ def plot_violin(measurement_list, title, save_dir, measurement_name, ylabel='Fra
     fig, ax = plt.subplots()
     positions = numpy.array([1,2,3])
 
-    plot_list = []
-    colors = ['blue','orange']
+    cmap = plt.get_cmap('Pastel1')
     
-    ax.violinplot([measurement_list['warp to unwarped'], measurement_list['consecutive timepoint measurements'], 
-            measurement_list['worm vs random worm']], positions, showmeans=True, showextrema=False)
+    parts = ax.violinplot([measurement_list['warp to unwarped'], measurement_list['consecutive timepoint measurements'], 
+                measurement_list['worm vs random worm']], positions, showmeans=True, showextrema=False)
     ax.set_xticks([1,2,3])
     ax.set_xticklabels(['Warped to Unwarped', 'Consecutive Timepoints', 'Random Worm'])
     ax.set_title(title)
 
     ax.set_ylabel(ylabel)
+
+    for pc in parts['bodies']:
+        pc.set_edgecolor('black')
+        pc.set_alpha(1)
+        pc.set_facecolors(cmap(1))
 
     save_dir = pathlib.Path(save_dir)
     save_file = save_dir/str(measurement_name+'.png')
