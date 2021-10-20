@@ -10,7 +10,7 @@ from elegant import process_images
 def preprocess_image(timepoint, img_type='bf'):
     position_root = timepoint.position.path
     if img_type == 'bf':
-        image = freeimage.read(position_root / f'{timepoint} {image_type}.png')
+        image = freeimage.read(position_root / f'{timepoint} {img_type}.png')
         image_corrected = process_images.pin_image_mode(image, optocoupler=None)
     else: 
         image_corrected = process_images.flatfield_correct(position_root, timepoint.name, img_type)
