@@ -9,7 +9,11 @@ from elegant import process_images
 
 def preprocess_image(timepoint, img_type='bf'):
     position_root = timepoint.position.path
-    image_corrected = process_images.flatfield_correct(position_root, timepoint.name, img_type)
+    if img_type == 'bf':
+        image = freeimage.read(position_root / f'{timepoint} {image_type}.png')
+        image_corrected = process_images.pin_image_mode(image, optocoupler=None)
+    else: 
+        image_corrected = process_images.flatfield_correct(position_root, timepoint.name, img_type)
     return image_corrected
 
 def measure_timepoint_list(timepoint_list, mask_generation, measurement_funcs, measurement_names, longitudinal_warp=False, img_type='bf'):
